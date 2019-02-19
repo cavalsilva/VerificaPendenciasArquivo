@@ -18,7 +18,6 @@ namespace VerificaPendenciasArquivo
                 string caminhoCompleto = Console.ReadLine();
                 string nomeArquivoSaida = Path.GetFileName(caminhoCompleto);
                 string arquivoLog = nomeArquivoSaida + ".log";
-
                 string diretorio = Path.GetDirectoryName(caminhoCompleto) + "\\";
 
                 try
@@ -32,42 +31,36 @@ namespace VerificaPendenciasArquivo
                         int linhaTamanho = linha.Length;
                         string linhaSaida = linha;
 
-                        //Verifica se a linha contém $ se existir não irá fazer a troca
+                        //Verifica se a linha contém alguma marcação de Jquery
                         if (linha.IndexOf("$") == -1)
                         {
-                            //Senão existir deve verificar o name
+                            //Verifica se existe tag ID
                             if (linha.IndexOf("id=") == -1)
                             {
+                                //Verifica se existe a tag NAME
                                 if (linha.IndexOf("name=") != -1)
                                 {
-                                    //Pega o indice da tag name
+                                    //Pega o indice que se encontra a tag name
                                     int idxName = linha.IndexOf("name=");
 
-
-                                    #region RETORNAR O NOME DO CAMPO
-
-                                    //Pega a string para retornar o atributo
+                                    //Pega a string a partir da TAG name para encontrar o atributo
                                     string strAux1 = linha.Substring(idxName, linhaTamanho - idxName);
 
-                                    //Pegar a primeira aspa
+                                    //Pegar a primeira aspa da tag NAME
                                     int idxAux = strAux1.IndexOf('"');
                                     string strAux2 = strAux1.Substring(idxAux + 1, strAux1.Length - idxAux - 1);
 
-                                    //Pega a próxima aspa
+                                    //Pega última aspa da tag NAME
                                     int idxUltimaAspa = strAux2.IndexOf('"');
                                     string nomeCampoName = "";
                                     if (idxUltimaAspa != -1)
                                         nomeCampoName = strAux2.Substring(0, idxUltimaAspa);
 
-                                    #endregion
-
+                                    //Pega o maior indice para pegar o atributo da tag name, exemplo NAME="nome atributo"
                                     int totalIdx = idxName + idxAux + idxUltimaAspa + 2;
 
-                                    //MONTAR ATRIBUTO ID
-                                    //Retorna o fechamento da tag
-                                    //int idxFechamentoTag = linha.LastIndexOf(">");
+                                    //Montar atributo da tag ID a partir da tag NAME
                                     int idxFechamentoTag = totalIdx;
-
                                     if (idxFechamentoTag != -1)
                                     {
                                         string nomeCampoId = " id=" + '"' + nomeCampoName + '"';
@@ -77,37 +70,25 @@ namespace VerificaPendenciasArquivo
 
                                         linhaSaida = linhaInicio + nomeCampoId + linhaFim;
 
+                                        //Escreve a linha alterada no log
                                         using (System.IO.StreamWriter file = new System.IO.StreamWriter(diretorio + arquivoLog, true))
                                         {
                                             file.WriteLine(linhaSaida);
                                         }
-
-                                        //Console.WriteLine(linhaSaida);
                                     }
-
                                 }
                             }
                         }
                         indice++;
+
+                        //Grava a linha alterada ou não no array
                         arquivoSaida[indice] = linhaSaida;
 
                         //Console.WriteLine(linhaSaida);
                     }
 
-
-                    //File.WriteAllLines(diretorio + nomeArquivoSaida + ".txt", arquivoSaida);
+                    //Monta novo arquivo com codificação ISO-8859-1
                     Encoding encoding = Encoding.GetEncoding("ISO-8859-1");
-
-                    /*
-                    using (StreamWriter file = new StreamWriter(diretorio + nomeArquivoSaida + ".txt", encoding))
-                    {
-                        foreach (string line in arquivoSaida)
-                        {
-                            file.WriteLine(line);
-                        }
-                    }
-                    */
-
                     using (FileStream fs = new FileStream(diretorio + nomeArquivoSaida + ".txt", FileMode.CreateNew))
                     {
                         using (StreamWriter file = new StreamWriter(fs, encoding))
@@ -119,11 +100,13 @@ namespace VerificaPendenciasArquivo
                         }
                     }
 
+                    //Mensagem de sucesso
                     Console.WriteLine("Arquivo gerado com sucesso.");
                     Console.WriteLine("Arquivo gerado: " + diretorio + nomeArquivoSaida + ".txt");
                     Console.WriteLine("Log gerado: " + diretorio + arquivoLog);
 
 
+                    //Mensagem para inclusão de um novo caso
                     Console.WriteLine();
                     Console.Write("Deseja realizar um novo caso? (s/n): ");
                     string retorno = Console.ReadLine();
@@ -139,7 +122,6 @@ namespace VerificaPendenciasArquivo
                     Console.ReadLine();
                 }
             }
-
         }
     }
 }
